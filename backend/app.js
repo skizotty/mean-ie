@@ -1,9 +1,25 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const postsRoutes = require('./routes/posts');
+const path = require('path');
+// meanApp I5wBNWBWtPE2LCs0
+mongoose
+  .connect(
+    'mongodb+srv://meanApp:I5wBNWBWtPE2LCs0@mean-cluster-v9qen.mongodb.net/node-angular?retryWrites=true&w=majority'
+  )
+  .then(() => {
+    console.log('Connected to DB');
+  })
+  .catch(() => {
+    console.log('Connection Failed');
+  });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use('/images', express.static(path.join('backend/images')));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,38 +29,11 @@ app.use((req, res, next) => {
   );
   res.setHeader(
     'Access-Control-Allow-Methods',
-    'GET,POSTS,PATCH,DELTE,OPTIONS'
+    'GET,POSTS,PATCH,DELETE,OPTIONS,PUT'
   );
   next();
 });
 
-app.post('/api/posts', (req, res, next) => {
-  const post = req.body;
-  console.log(post);
-  res.status(201).json({
-    message: 'Post Added Successfully',
-    success: true
-  });
-});
-
-app.get('/api/posts', (req, res, next) => {
-  const posts = [
-    {
-      id: 'nvufeinvofn123',
-      title: 'Post Title!',
-      content: 'This is coming from the server.'
-    },
-    {
-      id: 'nvufeinvofn123',
-      title: 'Post Title number 2!',
-      content: 'This is coming from the server, again lol.'
-    }
-  ];
-  res.status(200).json({
-    message: 'Posts fetched successfully!',
-    posts: posts,
-    success: true
-  });
-});
+app.use('/api/posts', postsRoutes);
 
 module.exports = app;
